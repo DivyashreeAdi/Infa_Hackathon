@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Chatbot Demo</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+	<div id="chat-container">
+		<div id="chat-header">
+			<h1>Chatbot</h1>
+		</div>
+		<div id="chat-body">
+			<div class="chat-message" id="chat-message-template">
+				<div class="message-content">
+					<p class="message-text"></p>
+				</div>
+			</div>
+		</div>
+		<div id="chat-footer">
+			<input type="text" id="user-input" placeholder="Type your message here...">
+			<button id="send-button">Send</button>
+		</div>
+	</div>
+	<script>
+		$(document).ready(function() {
+			// Get the input field and button
+			var input = document.getElementById("user-input");
+			var button = document.getElementById("send-button");
+
+			// When the user clicks on the button, send the message
+			button.onclick = function() {
+				sendMessage();
+			}
+
+			// When the user presses enter, send the message
+			input.addEventListener("keyup", function(event) {
+				if (event.keyCode === 13) {
+					event.preventDefault();
+					sendMessage();
+				}
+			});
+
+			// Function to send message to the server and receive a response
+			function sendMessage() {
+				// Get the user input
+				var userInput = input.value;
+
+				// Create a new message element and add it to the chat body
+				var newMessage = $("#chat-message-template").clone();
+				newMessage.removeAttr("id");
+				newMessage.addClass("user-message");
+				newMessage.find(".message-text").text(userInput);
+				$("#chat-body").append(newMessage);
+
+				// Clear the input field
+				input.value = "";
+
+				// Send the message to the server
+				$.get("/get", {msg: userInput}).done(function(data) {
+					// Create a new message element and add it to the chat body
+					var newMessage = $("#chat-message-template").clone();
+					newMessage.removeAttr("id");
+					newMessage.addClass("bot-message");
+					newMessage.find(".message-text").text(data);
+					$("#chat-body").append(newMessage);
+
+					// Scroll to the bottom of the chat body
+					$("#chat-body").scrollTop($("#chat-body")[0].scrollHeight);
+				});
+			}
+		});
+	</script>
+</body>
+</html>
